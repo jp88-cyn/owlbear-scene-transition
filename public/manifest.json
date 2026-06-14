@@ -7,12 +7,12 @@
 
     "description": "transição insana para os cabas",
 
-    "icon": "/icon.svg",
+    "icon": "./icon.svg",
 
     "action": {
         "title": "Scene Transition",
-        "icon": "/icon.svg",
-        "popover": "/",
+        "icon": "./icon.svg",
+        "popover": "./index.html",
         "height": 400,
         "width": 350
     }
