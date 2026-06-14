@@ -7,12 +7,12 @@
 
     "description": "transição insana para os cabas",
 
-    "icon": "./icon.svg",
+    "icon": "https://jp88-cyn.github.io/owlbear-scene-transition/icon.svg",
 
     "action": {
         "title": "Scene Transition",
-        "icon": "./icon.svg",
-        "popover": "./index.html",
+        "icon": "https://jp88-cyn.github.io/owlbear-scene-transition/icon.svg",
+        "popover": "https://jp88-cyn.github.io/owlbear-scene-transition/index.html",
         "height": 400,
         "width": 350
     }
