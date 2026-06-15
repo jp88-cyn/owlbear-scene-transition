@@ -13,6 +13,67 @@ half4 main(float2 coord) {
 }
 `;
 
+async function atualizarEfeito(
+    ativa: boolean | undefined
+) {
+
+    /*
+     * Remover efeito
+     */
+
+    if (!ativa) {
+
+        if (effectId) {
+
+            await OBR.scene.local.deleteItems([
+                effectId
+            ]);
+
+            effectId = null;
+
+            console.log(
+                "Effect removido."
+            );
+        }
+
+        return;
+    }
+
+    /*
+     * Evita criar efeitos duplicados
+     */
+
+    if (effectId) {
+
+        return;
+    }
+
+    /*
+     * Criar efeito
+     */
+
+    const effect =
+        buildEffect()
+            .effectType(
+                "VIEWPORT"
+            )
+            .sksl(
+                BLACK_SHADER
+            )
+            .build();
+
+    effectId =
+        effect.id;
+
+    await OBR.scene.local.addItems([
+        effect
+    ]);
+
+    console.log(
+        "Effect criado!"
+    );
+}
+
 OBR.onReady(async () => {
 
     console.log(
@@ -40,6 +101,37 @@ OBR.onReady(async () => {
         return;
     }
 
+    /*
+     * Verifica imediatamente o estado atual
+     * da sala para jogadores que acabaram
+     * de entrar ou atualizaram a página.
+     */
+
+    const metadataAtual =
+        await OBR.room.getMetadata();
+
+    const dadosAtuais =
+        metadataAtual[
+            TRANSITION_KEY
+        ] as
+            | {
+                ativa: boolean;
+            }
+            | undefined;
+
+    console.log(
+        "Estado inicial:",
+        dadosAtuais
+    );
+
+    await atualizarEfeito(
+        dadosAtuais?.ativa
+    );
+
+    /*
+     * Escuta mudanças futuras.
+     */
+
     OBR.room.onMetadataChange(
         async (metadata) => {
 
@@ -57,60 +149,8 @@ OBR.onReady(async () => {
                 data
             );
 
-            /*
-             * Remover efeito
-             */
-
-            if (!data?.ativa) {
-
-                if (effectId) {
-
-                    await OBR.scene.local.deleteItems([
-                        effectId
-                    ]);
-
-                    effectId = null;
-
-                    console.log(
-                        "Effect removido."
-                    );
-                }
-
-                return;
-            }
-
-            /*
-             * Evita criar efeitos duplicados
-             */
-
-            if (effectId) {
-
-                return;
-            }
-
-            /*
-             * Criar efeito
-             */
-
-            const effect =
-                buildEffect()
-                    .effectType(
-                        "VIEWPORT"
-                    )
-                    .sksl(
-                        BLACK_SHADER
-                    )
-                    .build();
-
-            effectId =
-                effect.id;
-
-            await OBR.scene.local.addItems([
-                effect
-            ]);
-
-            console.log(
-                "Effect criado!"
+            await atualizarEfeito(
+                data?.ativa
             );
 
         }
