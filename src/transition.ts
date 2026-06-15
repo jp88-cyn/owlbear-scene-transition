@@ -42,6 +42,7 @@ async function atualizarEfeito(
         }
 
         return;
+        
     }
 
     /*
