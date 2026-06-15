@@ -260,6 +260,8 @@ OBR.onReady(async () => {
 
                 alert(
                     "Erro ao iniciar a transição."
+
+                    
                 );
 
             }
