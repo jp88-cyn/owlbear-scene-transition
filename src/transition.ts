@@ -1,59 +1,97 @@
-import "./style.css";
-import OBR from "@owlbear-rodeo/sdk";
+import OBR, {
+    buildEffect
+} from "@owlbear-rodeo/sdk";
 
 export const TRANSITION_KEY =
     "jp-aleatorio/scene-transition";
 
-window.addEventListener("DOMContentLoaded", () => {
+let effectId: string | null = null;
 
-    const video =
-        document.getElementById("transitionVideo");
+const BLACK_SHADER = `
+half4 main(float2 coord) {
+    return half4(0.0, 0.0, 0.0, 1.0);
+}
+`;
 
-    if (!(video instanceof HTMLVideoElement)) {
-        return;
-    }
+OBR.onReady(() => {
 
-    video.addEventListener("contextmenu", (event) => {
-        event.preventDefault();
-    });
+    console.log(
+        "Transition Effect pronto!"
+    );
 
-    OBR.onReady(() => {
-
-        OBR.room.onMetadataChange((metadata) => {
+    OBR.room.onMetadataChange(
+        async (metadata) => {
 
             const data =
-                metadata[TRANSITION_KEY] as
-                | {
-                    ativa: boolean;
-                    video?: string;
+                metadata[
+                    TRANSITION_KEY
+                ] as
+                    | {
+                        ativa: boolean;
+                    }
+                    | undefined;
+
+            console.log(
+                "Metadata recebida:",
+                data
+            );
+
+            /*
+             * Remover efeito
+             */
+
+            if (!data?.ativa) {
+
+                if (effectId) {
+
+                    await OBR.scene.local.deleteItems([
+                        effectId
+                    ]);
+
+                    effectId = null;
+
+                    console.log(
+                        "Effect removido."
+                    );
                 }
-                | undefined;
-
-            if (!data?.ativa || !data.video) {
-
-                video.pause();
-                video.src = "";
 
                 return;
             }
 
-            if (video.src !== data.video) {
+            /*
+             * Evita duplicar
+             */
 
-                video.src = data.video;
-
-                video.play()
-                .catch(() => {
-
-                    console.log(
-                        "Autoplay bloqueado."
-                    );
-
-                });
-
+            if (effectId) {
+                return;
             }
 
-        });
+            /*
+             * Criar efeito
+             */
 
-    });
+            const effect =
+                buildEffect()
+                    .effectType(
+                        "VIEWPORT"
+                    )
+                    .sksl(
+                        BLACK_SHADER
+                    )
+                    .build();
+
+            effectId =
+                effect.id;
+
+            await OBR.scene.local.addItems([
+                effect
+            ]);
+
+            console.log(
+                "Effect criado!"
+            );
+
+        }
+    );
 
 });
