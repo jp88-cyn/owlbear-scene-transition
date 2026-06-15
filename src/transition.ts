@@ -13,11 +13,32 @@ half4 main(float2 coord) {
 }
 `;
 
-OBR.onReady(() => {
+OBR.onReady(async () => {
 
     console.log(
         "Transition Effect pronto!"
     );
+
+    const role =
+        await OBR.player.getRole();
+
+    console.log(
+        "Cargo no transition:",
+        role
+    );
+
+    /*
+     * O GM não deve receber a transição.
+     */
+
+    if (role === "GM") {
+
+        console.log(
+            "GM detectado. Ignorando efeitos."
+        );
+
+        return;
+    }
 
     OBR.room.onMetadataChange(
         async (metadata) => {
@@ -59,10 +80,11 @@ OBR.onReady(() => {
             }
 
             /*
-             * Evita duplicar
+             * Evita criar efeitos duplicados
              */
 
             if (effectId) {
+
                 return;
             }
 
