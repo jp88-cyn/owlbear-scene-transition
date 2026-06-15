@@ -5,7 +5,7 @@ import { TRANSITION_KEY } from "./transition";
 
 console.log("main.ts carregado!");
 
-OBR.onReady(() => {
+OBR.onReady(async () => {
 
     console.log("OBR pronto!");
 
@@ -18,118 +18,299 @@ OBR.onReady(() => {
     console.log("Botão iniciar:", startButton);
     console.log("Botão parar:", stopButton);
 
-    startButton?.addEventListener("click", async () => {
+    /*
+     * -----------------------------
+     * Overlay para os jogadores
+     * -----------------------------
+     */
 
-        console.log("Botão iniciar clicado!");
+    const role =
+        await OBR.player.getRole();
 
-        const input =
-            document.getElementById("videoId");
+    console.log("Cargo do jogador:", role);
 
-        console.log("Input encontrado:", input);
+    if (role !== "GM") {
 
-        if (!(input instanceof HTMLInputElement)) {
+        console.log("Criando overlay do jogador...");
 
-            console.error("videoId não é um HTMLInputElement!");
+        const overlay =
+            document.createElement("div");
 
-            return;
-        }
+        overlay.id =
+            "transition-overlay";
 
-        const escolha =
-            Number(input.value);
+        overlay.style.position =
+            "fixed";
 
-        console.log("Escolha:", escolha);
+        overlay.style.top =
+            "0";
 
-        let video;
+        overlay.style.left =
+            "0";
 
-        if (escolha === 5) {
+        overlay.style.width =
+            "100vw";
 
-            video =
-                videos[
-                    Math.floor(
-                        Math.random()
-                        * videos.length
-                    )
-                ];
+        overlay.style.height =
+            "100vh";
 
-            console.log("Vídeo aleatório:", video);
+        overlay.style.background =
+            "black";
 
-        } else {
+        overlay.style.zIndex =
+            "999999";
 
-            video =
-                videos.find(
-                    v => v.id === escolha
+        overlay.style.display =
+            "none";
+
+        const overlayVideo =
+            document.createElement("video");
+
+        overlayVideo.style.width =
+            "100%";
+
+        overlayVideo.style.height =
+            "100%";
+
+        overlayVideo.style.objectFit =
+            "cover";
+
+        overlayVideo.autoplay =
+            true;
+
+        overlayVideo.loop =
+            true;
+
+        overlayVideo.playsInline =
+            true;
+
+        overlayVideo.muted =
+            true;
+
+        overlayVideo.controls =
+            false;
+
+        overlayVideo.addEventListener(
+            "contextmenu",
+            (event) => {
+                event.preventDefault();
+            }
+        );
+
+        overlay.appendChild(
+            overlayVideo
+        );
+
+        document.body.appendChild(
+            overlay
+        );
+
+        OBR.room.onMetadataChange(
+            (metadata) => {
+
+                const data =
+                    metadata[
+                        TRANSITION_KEY
+                    ] as
+                    | {
+                        ativa: boolean;
+                        video?: string;
+                    }
+                    | undefined;
+
+                console.log(
+                    "Metadata recebida:",
+                    data
                 );
 
-            console.log("Vídeo selecionado:", video);
+                if (
+                    !data?.ativa ||
+                    !data.video
+                ) {
 
-        }
+                    overlay.style.display =
+                        "none";
 
-        if (!video) {
+                    overlayVideo.pause();
 
-            console.error("Vídeo inválido.");
+                    overlayVideo.src =
+                        "";
 
-            alert("Vídeo inválido.");
-
-            return;
-        }
-
-        console.log("Tentando definir metadata...");
-
-        try {
-
-            await OBR.room.setMetadata({
-                [TRANSITION_KEY]: {
-                    ativa: true,
-                    video: video.url
+                    return;
                 }
-            });
 
-            console.log("Metadata enviada com sucesso!");
+                overlay.style.display =
+                    "block";
 
-            alert("Transição iniciada!");
+                if (
+                    overlayVideo.src !==
+                    data.video
+                ) {
 
-        } catch (error) {
+                    overlayVideo.src =
+                        data.video;
 
-            console.error(
-                "Erro ao enviar metadata:",
-                error
-            );
+                    overlayVideo
+                        .play()
+                        .catch(
+                            console.error
+                        );
 
-            alert(
-                "Erro ao iniciar transição. Veja o console."
-            );
-        }
-
-    });
-
-    stopButton?.addEventListener("click", async () => {
-
-        console.log("Botão parar clicado!");
-
-        try {
-
-            await OBR.room.setMetadata({
-                [TRANSITION_KEY]: {
-                    ativa: false
                 }
-            });
 
-            console.log("Transição encerrada!");
+            }
+        );
+    }
 
-            alert("Transição encerrada!");
+    /*
+     * -----------------------------
+     * Botão iniciar
+     * -----------------------------
+     */
 
-        } catch (error) {
+    startButton?.addEventListener(
+        "click",
+        async () => {
 
-            console.error(
-                "Erro ao encerrar transição:",
-                error
+            console.log(
+                "Botão iniciar clicado!"
             );
 
-            alert(
-                "Erro ao encerrar transição. Veja o console."
-            );
+            const input =
+                document.getElementById(
+                    "videoId"
+                );
+
+            if (
+                !(
+                    input instanceof
+                    HTMLInputElement
+                )
+            ) {
+
+                console.error(
+                    "videoId inválido."
+                );
+
+                return;
+            }
+
+            const escolha =
+                Number(
+                    input.value
+                );
+
+            let video;
+
+            if (
+                escolha === 5
+            ) {
+
+                video =
+                    videos[
+                        Math.floor(
+                            Math.random()
+                            * videos.length
+                        )
+                    ];
+
+            } else {
+
+                video =
+                    videos.find(
+                        (v) =>
+                            v.id ===
+                            escolha
+                    );
+
+            }
+
+            if (!video) {
+
+                alert(
+                    "Vídeo inválido."
+                );
+
+                return;
+            }
+
+            try {
+
+                await OBR.room.setMetadata({
+                    [TRANSITION_KEY]: {
+                        ativa: true,
+                        video:
+                            video.url
+                    }
+                });
+
+                console.log(
+                    "Transição iniciada!"
+                );
+
+                alert(
+                    "Transição iniciada!"
+                );
+
+            } catch (error) {
+
+                console.error(
+                    error
+                );
+
+                alert(
+                    "Erro ao iniciar a transição."
+                );
+
+            }
+
         }
+    );
 
-    });
+    /*
+     * -----------------------------
+     * Botão parar
+     * -----------------------------
+     */
+
+    stopButton?.addEventListener(
+        "click",
+        async () => {
+
+            console.log(
+                "Botão parar clicado!"
+            );
+
+            try {
+
+                await OBR.room.setMetadata({
+                    [TRANSITION_KEY]: {
+                        ativa: false
+                    }
+                });
+
+                console.log(
+                    "Transição encerrada!"
+                );
+
+                alert(
+                    "Transição encerrada!"
+                );
+
+            } catch (error) {
+
+                console.error(
+                    error
+                );
+
+                alert(
+                    "Erro ao encerrar a transição."
+                );
+
+            }
+
+        }
+    );
 
 });
+
