@@ -8,8 +8,19 @@ export const TRANSITION_KEY =
 let effectId: string | null = null;
 
 const BLACK_SHADER = `
+uniform float u_time;
+
 half4 main(float2 coord) {
-    return half4(0.0, 0.0, 0.0, 1.0);
+
+    float brilho =
+        abs(sin(u_time * 5.0));
+
+    return half4(
+        brilho,
+        brilho,
+        brilho,
+        1.0
+    );
 }
 `;
 
