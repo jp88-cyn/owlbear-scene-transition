@@ -2,4 +2,4 @@ var e=(e,t)=>()=>(t||(e((t={exports:{}}).exports,t),e=null),t.exports);(function
 half4 main(float2 coord) {
     return half4(0.0, 0.0, 0.0, 1.0);
 }
-`;Q.onReady(()=>{console.log(`Transition Effect pronto!`),Q.room.onMetadataChange(async e=>{let t=e[Dt];if(console.log(`Metadata recebida:`,t),!t?.ativa){$&&(await Q.scene.local.deleteItems([$]),$=null,console.log(`Effect removido.`));return}if($)return;let n=Et().effectType(`VIEWPORT`).sksl(Ot).build();$=n.id,await Q.scene.local.addItems([n]),console.log(`Effect criado!`)})});export{Q as n,Dt as t};
+`;Q.onReady(async()=>{console.log(`Transition Effect pronto!`);let e=await Q.player.getRole();if(console.log(`Cargo no transition:`,e),e===`GM`){console.log(`GM detectado. Ignorando efeitos.`);return}Q.room.onMetadataChange(async e=>{let t=e[Dt];if(console.log(`Metadata recebida:`,t),!t?.ativa){$&&(await Q.scene.local.deleteItems([$]),$=null,console.log(`Effect removido.`));return}if($)return;let n=Et().effectType(`VIEWPORT`).sksl(Ot).build();$=n.id,await Q.scene.local.addItems([n]),console.log(`Effect criado!`)})});export{Q as n,Dt as t};
