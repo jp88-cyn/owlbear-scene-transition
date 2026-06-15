@@ -89,7 +89,7 @@ OBR.onReady(async () => {
     );
 
     /*
-     * O GM não deve receber a transição.
+     * O GM não recebe os efeitos.
      */
 
     if (role === "GM") {
@@ -102,34 +102,7 @@ OBR.onReady(async () => {
     }
 
     /*
-     * Verifica imediatamente o estado atual
-     * da sala para jogadores que acabaram
-     * de entrar ou atualizaram a página.
-     */
-
-    const metadataAtual =
-        await OBR.room.getMetadata();
-
-    const dadosAtuais =
-        metadataAtual[
-            TRANSITION_KEY
-        ] as
-            | {
-                ativa: boolean;
-            }
-            | undefined;
-
-    console.log(
-        "Estado inicial:",
-        dadosAtuais
-    );
-
-    await atualizarEfeito(
-        dadosAtuais?.ativa
-    );
-
-    /*
-     * Escuta mudanças futuras.
+     * Escuta mudanças futuras imediatamente.
      */
 
     OBR.room.onMetadataChange(
@@ -154,6 +127,32 @@ OBR.onReady(async () => {
             );
 
         }
+    );
+
+    /*
+     * Depois verifica o estado atual
+     * para jogadores que acabaram de entrar.
+     */
+
+    const metadataAtual =
+        await OBR.room.getMetadata();
+
+    const dadosAtuais =
+        metadataAtual[
+            TRANSITION_KEY
+        ] as
+            | {
+                ativa: boolean;
+            }
+            | undefined;
+
+    console.log(
+        "Estado inicial:",
+        dadosAtuais
+    );
+
+    await atualizarEfeito(
+        dadosAtuais?.ativa
     );
 
 });
