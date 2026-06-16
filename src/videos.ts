@@ -9,7 +9,7 @@ export const videos = [
         id: 2,
         nome: "video teste",
         tipo: "video",
-        url: "/videos/teste.mp4"
+        url: "https://jp88-cyn.github.io/owlbear-scene-transition/videos/teste.mp4"
     },
 
     {

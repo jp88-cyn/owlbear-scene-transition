@@ -100,6 +100,11 @@ function criarVideo(
 
     removerVideo();
 
+    console.log(
+        "Criando vídeo com URL:",
+        url
+    );
+
     videoOverlay =
         document.createElement("div");
 
@@ -142,6 +147,9 @@ function criarVideo(
     overlayVideo.controls =
         false;
 
+    overlayVideo.muted =
+        true;
+
     overlayVideo.style.width =
         "100%";
 
@@ -169,22 +177,22 @@ function criarVideo(
     );
 
     overlayVideo
-    .play()
-    .then(() => {
+        .play()
+        .then(() => {
 
-        console.log(
-            "Vídeo começou!"
-        );
+            console.log(
+                "Vídeo começou!"
+            );
 
-    })
-    .catch((error) => {
+        })
+        .catch((error) => {
 
-        console.error(
-            "Erro ao tocar vídeo:",
-            error
-        );
+            console.error(
+                "Erro ao tocar vídeo:",
+                error
+            );
 
-    });
+        });
 }
 
 async function atualizarTransicao(
@@ -248,6 +256,7 @@ async function atualizarTransicao(
             );
         }
 
+        return;
     }
 
 }
@@ -298,29 +307,30 @@ OBR.onReady(async () => {
                     | undefined;
 
             console.log(
-    "Metadata completa:",
-    metadata
-);
+                "Metadata completa:",
+                metadata
+            );
 
-console.log(
-    "Data recebida:",
-    data
-);
+            console.log(
+                "Data recebida:",
+                data
+            );
 
-console.log(
-    "Ativa:",
-    data?.ativa
-);
+            console.log(
+                "Ativa:",
+                data?.ativa
+            );
 
-console.log(
-    "Tipo:",
-    data?.tipo
-);
+            console.log(
+                "Tipo:",
+                data?.tipo
+            );
 
-console.log(
-    "Vídeo:",
-    data?.video
-);
+            console.log(
+                "Vídeo:",
+                data?.video
+            );
+
             await atualizarTransicao(
                 data
             );
@@ -329,7 +339,8 @@ console.log(
     );
 
     /*
-     * Estado atual
+     * Estado atual para jogadores
+     * que acabaram de entrar.
      */
 
     const metadataAtual =
@@ -345,6 +356,11 @@ console.log(
                 video?: string;
             }
             | undefined;
+
+    console.log(
+        "Estado inicial:",
+        dadosAtuais
+    );
 
     await atualizarTransicao(
         dadosAtuais
