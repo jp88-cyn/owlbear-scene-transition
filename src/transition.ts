@@ -169,15 +169,22 @@ function criarVideo(
     );
 
     overlayVideo
-        .play()
-        .catch(
-            console.error
+    .play()
+    .then(() => {
+
+        console.log(
+            "Vídeo começou!"
         );
 
-    console.log(
-        "Vídeo iniciado:",
-        url
-    );
+    })
+    .catch((error) => {
+
+        console.error(
+            "Erro ao tocar vídeo:",
+            error
+        );
+
+    });
 }
 
 async function atualizarTransicao(

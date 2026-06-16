@@ -16,7 +16,7 @@ export const videos = [
         id: 3,
         nome: "TV Static",
         tipo: "video",
-        url: "https://COLE_AQUI_O_LINK_DO_VIDEO.webm"
+        url: "https://youtu.be/IxByMG85rLs"
     },
 
     {
