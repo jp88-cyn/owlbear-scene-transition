@@ -121,14 +121,33 @@ OBR.onReady(async () => {
 
                 else {
 
-                    await OBR.room.setMetadata({
-                        [TRANSITION_KEY]: {
-                            ativa: true,
-                            tipo: "video",
-                            video:
-                                transicao.url
-                        }
-                    });
+                   console.log(
+    "Vai enviar:",
+    JSON.stringify({
+        [TRANSITION_KEY]: {
+            ativa: true,
+            tipo: "video",
+            video: transicao.url
+        }
+    })
+);
+
+await OBR.room.setMetadata({
+    [TRANSITION_KEY]: {
+        ativa: true,
+        tipo: "video",
+        video: transicao.url
+    }
+});
+
+console.log(
+    "Metadata enviada!"
+);
+
+console.log(
+    "Metadata atual:",
+    await OBR.room.getMetadata()
+);
 
                 }
 
