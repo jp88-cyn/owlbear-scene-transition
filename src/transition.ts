@@ -298,10 +298,29 @@ OBR.onReady(async () => {
                     | undefined;
 
             console.log(
-                "Metadata:",
-                data
-            );
+    "Metadata completa:",
+    metadata
+);
 
+console.log(
+    "Data recebida:",
+    data
+);
+
+console.log(
+    "Ativa:",
+    data?.ativa
+);
+
+console.log(
+    "Tipo:",
+    data?.tipo
+);
+
+console.log(
+    "Vídeo:",
+    data?.video
+);
             await atualizarTransicao(
                 data
             );
