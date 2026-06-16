@@ -1,25 +1,35 @@
 export const videos = [
     {
         id: 1,
-        nome: "Midnight Channel",
-        url: "https://COLE_AQUI_O_LINK_DO_VIDEO.mp4"
+        nome: "Tela Preta",
+        tipo: "black"
     },
 
     {
         id: 2,
-        nome: "TV Static",
-        url: "https://COLE_AQUI_O_LINK_DO_VIDEO.mp4"
+        nome: "video teste",
+        tipo: "video",
+        url: "/videos/teste.mp4"
     },
 
     {
         id: 3,
-        nome: "Fog Entrance",
-        url: "https://COLE_AQUI_O_LINK_DO_VIDEO.mp4"
+        nome: "TV Static",
+        tipo: "video",
+        url: "https://COLE_AQUI_O_LINK_DO_VIDEO.webm"
     },
 
     {
         id: 4,
+        nome: "Fog Entrance",
+        tipo: "video",
+        url: "https://COLE_AQUI_O_LINK_DO_VIDEO.webm"
+    },
+
+    {
+        id: 5,
         nome: "Dungeon Transition",
-        url: "https://COLE_AQUI_O_LINK_DO_VIDEO.mp4"
+        tipo: "video",
+        url: "https://COLE_AQUI_O_LINK_DO_VIDEO.webm"
     }
 ];

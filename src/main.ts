@@ -19,153 +19,7 @@ OBR.onReady(async () => {
     console.log("Botão parar:", stopButton);
 
     /*
-     * -----------------------------
-     * Overlay para os jogadores
-     * -----------------------------
-     */
-
-    const role =
-        await OBR.player.getRole();
-
-    console.log("Cargo do jogador:", role);
-
-    if (role !== "GM") {
-
-        console.log("Criando overlay do jogador...");
-
-        const overlay =
-            document.createElement("div");
-
-        overlay.id =
-            "transition-overlay";
-
-        overlay.style.position =
-            "fixed";
-
-        overlay.style.top =
-            "0";
-
-        overlay.style.left =
-            "0";
-
-        overlay.style.width =
-            "100vw";
-
-        overlay.style.height =
-            "100vh";
-
-        overlay.style.background =
-            "black";
-
-        overlay.style.zIndex =
-            "999999";
-
-        overlay.style.display =
-            "none";
-
-        const overlayVideo =
-            document.createElement("video");
-
-        overlayVideo.style.width =
-            "100%";
-
-        overlayVideo.style.height =
-            "100%";
-
-        overlayVideo.style.objectFit =
-            "cover";
-
-        overlayVideo.autoplay =
-            true;
-
-        overlayVideo.loop =
-            true;
-
-        overlayVideo.playsInline =
-            true;
-
-        overlayVideo.muted =
-            true;
-
-        overlayVideo.controls =
-            false;
-
-        overlayVideo.addEventListener(
-            "contextmenu",
-            (event) => {
-                event.preventDefault();
-            }
-        );
-
-        overlay.appendChild(
-            overlayVideo
-        );
-
-        document.body.appendChild(
-            overlay
-        );
-
-        OBR.room.onMetadataChange(
-            (metadata) => {
-
-                const data =
-                    metadata[
-                        TRANSITION_KEY
-                    ] as
-                    | {
-                        ativa: boolean;
-                        video?: string;
-                    }
-                    | undefined;
-
-                console.log(
-                    "Metadata recebida:",
-                    data
-                );
-
-                if (
-                    !data?.ativa ||
-                    !data.video
-                ) {
-
-                    overlay.style.display =
-                        "none";
-
-                    overlayVideo.pause();
-
-                    overlayVideo.src =
-                        "";
-
-                    return;
-                }
-
-                overlay.style.display =
-                    "block";
-
-                if (
-                    overlayVideo.src !==
-                    data.video
-                ) {
-
-                    overlayVideo.src =
-                        data.video;
-
-                    overlayVideo
-                        .play()
-                        .catch(
-                            console.error
-                        );
-
-                }
-
-            }
-        );
-    }
-
-    /*
-     * -----------------------------
      * Botão iniciar
-     * -----------------------------
      */
 
     startButton?.addEventListener(
@@ -196,17 +50,19 @@ OBR.onReady(async () => {
             }
 
             const escolha =
-                Number(
-                    input.value
-                );
+                Number(input.value);
 
-            let video;
+            let transicao;
+
+            /*
+             * Escolha aleatória
+             */
 
             if (
-                escolha === 5
+                escolha === 6
             ) {
 
-                video =
+                transicao =
                     videos[
                         Math.floor(
                             Math.random()
@@ -216,7 +72,7 @@ OBR.onReady(async () => {
 
             } else {
 
-                video =
+                transicao =
                     videos.find(
                         (v) =>
                             v.id ===
@@ -225,10 +81,15 @@ OBR.onReady(async () => {
 
             }
 
-            if (!video) {
+            console.log(
+                "Transição escolhida:",
+                transicao
+            );
+
+            if (!transicao) {
 
                 alert(
-                    "Vídeo inválido."
+                    "Transição inválida."
                 );
 
                 return;
@@ -236,13 +97,40 @@ OBR.onReady(async () => {
 
             try {
 
-                await OBR.room.setMetadata({
-                    [TRANSITION_KEY]: {
-                        ativa: true,
-                        video:
-                            video.url
-                    }
-                });
+                /*
+                 * Tela preta
+                 */
+
+                if (
+                    transicao.tipo ===
+                    "black"
+                ) {
+
+                    await OBR.room.setMetadata({
+                        [TRANSITION_KEY]: {
+                            ativa: true,
+                            tipo: "black"
+                        }
+                    });
+
+                }
+
+                /*
+                 * Vídeo
+                 */
+
+                else {
+
+                    await OBR.room.setMetadata({
+                        [TRANSITION_KEY]: {
+                            ativa: true,
+                            tipo: "video",
+                            video:
+                                transicao.url
+                        }
+                    });
+
+                }
 
                 console.log(
                     "Transição iniciada!"
@@ -260,8 +148,6 @@ OBR.onReady(async () => {
 
                 alert(
                     "Erro ao iniciar a transição."
-
-                    
                 );
 
             }
@@ -270,9 +156,7 @@ OBR.onReady(async () => {
     );
 
     /*
-     * -----------------------------
      * Botão parar
-     * -----------------------------
      */
 
     stopButton?.addEventListener(

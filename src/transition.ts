@@ -6,35 +6,29 @@ export const TRANSITION_KEY =
     "jp-aleatorio/scene-transition";
 
 let effectId: string | null = null;
-let effectInterval: number | null = null;
+
+let videoOverlay: HTMLDivElement | null =
+    null;
+
+let overlayVideo: HTMLVideoElement | null =
+    null;
 
 /*
- * Tons inspirados no Midnight Channel
+ * Shader da tela preta
  */
 
-const SHADER_A = `
+const BLACK_SHADER = `
 half4 main(float2 coord) {
     return half4(
-        0.05,
-        0.10,
-        0.25,
+        0.0,
+        0.0,
+        0.0,
         1.0
     );
 }
 `;
 
-const SHADER_B = `
-half4 main(float2 coord) {
-    return half4(
-        0.15,
-        0.20,
-        0.40,
-        1.0
-    );
-}
-`;
-
-async function removerEffect() {
+async function removerTelaPreta() {
 
     if (effectId) {
 
@@ -45,14 +39,16 @@ async function removerEffect() {
         effectId = null;
 
         console.log(
-            "Effect removido."
+            "Tela preta removida."
         );
     }
 }
 
-async function criarEffect(
-    shader: string
-) {
+async function criarTelaPreta() {
+
+    if (effectId) {
+        return;
+    }
 
     const effect =
         buildEffect()
@@ -60,7 +56,7 @@ async function criarEffect(
                 "VIEWPORT"
             )
             .sksl(
-                shader
+                BLACK_SHADER
             )
             .build();
 
@@ -72,126 +68,215 @@ async function criarEffect(
     ]);
 
     console.log(
-        "Effect criado."
+        "Tela preta criada."
     );
 }
 
-async function iniciarMidnightChannel() {
+function removerVideo() {
 
-    /*
-     * Evita duplicar animações
-     */
+    if (overlayVideo) {
 
-    if (effectInterval !== null) {
-        return;
+        overlayVideo.pause();
+
+        overlayVideo.src = "";
     }
 
-    console.log(
-        "Iniciando Midnight Channel..."
-    );
+    if (videoOverlay) {
 
-    let usarPrimeiro =
-        true;
-
-    /*
-     * Cria o primeiro efeito
-     */
-
-    await criarEffect(
-        SHADER_A
-    );
-
-    effectInterval =
-        window.setInterval(
-            async () => {
-
-                await removerEffect();
-
-                await criarEffect(
-
-                    usarPrimeiro
-                        ? SHADER_B
-                        : SHADER_A
-
-                );
-
-                usarPrimeiro =
-                    !usarPrimeiro;
-
-            },
-
-            300
-        );
-}
-
-async function pararMidnightChannel() {
-
-    console.log(
-        "Parando Midnight Channel..."
-    );
-
-    if (
-        effectInterval !== null
-    ) {
-
-        clearInterval(
-            effectInterval
-        );
-
-        effectInterval =
-            null;
+        videoOverlay.remove();
     }
 
-    await removerEffect();
+    overlayVideo = null;
+    videoOverlay = null;
+
+    console.log(
+        "Vídeo removido."
+    );
 }
 
-async function atualizarEfeito(
-    ativa: boolean | undefined
+function criarVideo(
+    url: string
 ) {
 
-    if (!ativa) {
+    removerVideo();
 
-        await pararMidnightChannel();
+    videoOverlay =
+        document.createElement("div");
+
+    videoOverlay.style.position =
+        "fixed";
+
+    videoOverlay.style.top =
+        "0";
+
+    videoOverlay.style.left =
+        "0";
+
+    videoOverlay.style.width =
+        "100vw";
+
+    videoOverlay.style.height =
+        "100vh";
+
+    videoOverlay.style.zIndex =
+        "999999";
+
+    videoOverlay.style.background =
+        "black";
+
+    overlayVideo =
+        document.createElement("video");
+
+    overlayVideo.src =
+        url;
+
+    overlayVideo.autoplay =
+        true;
+
+    overlayVideo.loop =
+        true;
+
+    overlayVideo.playsInline =
+        true;
+
+    overlayVideo.controls =
+        false;
+
+    overlayVideo.style.width =
+        "100%";
+
+    overlayVideo.style.height =
+        "100%";
+
+    overlayVideo.style.objectFit =
+        "cover";
+
+    overlayVideo.addEventListener(
+        "contextmenu",
+        (event) => {
+
+            event.preventDefault();
+
+        }
+    );
+
+    videoOverlay.appendChild(
+        overlayVideo
+    );
+
+    document.body.appendChild(
+        videoOverlay
+    );
+
+    overlayVideo
+        .play()
+        .catch(
+            console.error
+        );
+
+    console.log(
+        "Vídeo iniciado:",
+        url
+    );
+}
+
+async function atualizarTransicao(
+    data:
+        | {
+            ativa: boolean;
+            tipo?: string;
+            video?: string;
+        }
+        | undefined
+) {
+
+    /*
+     * Desligar tudo
+     */
+
+    if (!data?.ativa) {
+
+        await removerTelaPreta();
+
+        removerVideo();
 
         return;
     }
 
-    await iniciarMidnightChannel();
+    /*
+     * Tela preta
+     */
+
+    if (
+        data.tipo ===
+        "black"
+    ) {
+
+        removerVideo();
+
+        await criarTelaPreta();
+
+        return;
+    }
+
+    /*
+     * Vídeo
+     */
+
+    if (
+        data.tipo ===
+        "video" &&
+        data.video
+    ) {
+
+        await removerTelaPreta();
+
+        if (
+            overlayVideo?.src !==
+            data.video
+        ) {
+
+            criarVideo(
+                data.video
+            );
+        }
+
+    }
+
 }
 
 OBR.onReady(async () => {
 
     console.log(
-        "Transition Effect pronto!"
+        "Transition pronto!"
     );
 
     const role =
         await OBR.player.getRole();
 
     console.log(
-        "Cargo no transition:",
+        "Cargo:",
         role
     );
 
     /*
-     * O GM não recebe os efeitos.
+     * O GM não recebe transições.
      */
 
     if (role === "GM") {
 
         console.log(
-            "GM detectado. Ignorando efeitos."
+            "GM detectado."
         );
 
         return;
     }
 
     /*
-     * Escuta mudanças futuras imediatamente.
+     * Mudanças futuras
      */
 
     OBR.room.onMetadataChange(
-
         async (metadata) => {
 
             const data =
@@ -200,23 +285,25 @@ OBR.onReady(async () => {
                 ] as
                     | {
                         ativa: boolean;
+                        tipo?: string;
+                        video?: string;
                     }
                     | undefined;
 
             console.log(
-                "Metadata recebida:",
+                "Metadata:",
                 data
             );
 
-            await atualizarEfeito(
-                data?.ativa
+            await atualizarTransicao(
+                data
             );
+
         }
     );
 
     /*
-     * Verifica o estado atual
-     * para quem entrar depois.
+     * Estado atual
      */
 
     const metadataAtual =
@@ -228,16 +315,13 @@ OBR.onReady(async () => {
         ] as
             | {
                 ativa: boolean;
+                tipo?: string;
+                video?: string;
             }
             | undefined;
 
-    console.log(
-        "Estado inicial:",
+    await atualizarTransicao(
         dadosAtuais
-    );
-
-    await atualizarEfeito(
-        dadosAtuais?.ativa
     );
 
 });
